@@ -1,0 +1,10 @@
+{
+  "name": "hackermate-cli",
+  "version": "1.0.0",
+  "bin": {
+    "hmate": "./index.js"
+  },
+  "dependencies": {
+    "chess.js": "^1.0.0"
+  }
+}

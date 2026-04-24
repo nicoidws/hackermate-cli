@@ -1,0 +1,102 @@
+#!/usr/bin/env node
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const chess_js_1 = require("chess.js");
+const readline_1 = __importDefault(require("readline"));
+const child_process_1 = require("child_process");
+const engine = (0, child_process_1.spawn)("stockfish");
+const rl = readline_1.default.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+});
+const chess = new chess_js_1.Chess();
+let playerColor = "w";
+function send(cmd) {
+    engine.stdin.write(cmd + "\n");
+}
+function getBestMove(fen: string): Promise<string> {
+  return new Promise((resolve) => {
+    let buffer = "";
+
+    const onData = (data: any) => {
+      buffer += data.toString();
+
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (line.startsWith("bestmove")) {
+          engine.stdout.off("data", onData);
+          resolve(line.split(" ")[1]);
+        }
+      }
+    };
+
+    engine.stdout.on("data", onData);
+
+    send("ucinewgame");
+    send("position fen " + fen);
+    send("go depth 12");
+  });
+}
+function printBoard() {
+    console.clear();
+    console.log("=== HACKERMATE CLI ===");
+    console.log(chess.ascii());
+    console.log("Turno:", chess.turn() === "w" ? "Blancas" : "Negras");
+}
+function askColor() {
+    return new Promise((resolve) => {
+        rl.question("Elige color (w/b): ", (answer) => {
+            if (answer !== "w" && answer !== "b") {
+                console.log("❌ Opción inválida");
+                return askColor().then(resolve);
+            }
+            playerColor = answer;
+            resolve();
+        });
+    });
+}
+async function gameLoop() {
+    printBoard();
+    if (chess.turn() !== playerColor) {
+        console.log("🤖 Pensando...");
+        const bestMove = await getBestMove(chess.fen());
+        chess.move(bestMove);
+        console.log("🤖 Motor juega:", bestMove);
+        printBoard();
+    }
+    rl.question("Tu movimiento: ", async (input) => {
+        if (input === "exit") {
+            rl.close();
+            engine.kill();
+            process.exit(0);
+        }
+        if (input === "undo") {
+            chess.undo();
+            chess.undo();
+            return gameLoop();
+        }
+        try {
+            chess.move(input);
+        }
+        catch (err) {
+            console.log("❌ Movimiento inválido");
+            return gameLoop();
+        }
+        gameLoop();
+    });
+}
+async function main() {
+    console.log("🔥 Hackermate CLI");
+    send("uci");
+    send("isready");
+    await askColor();
+    gameLoop();
+    
+}
+main();
+//# sourceMappingURL=index.js.map
