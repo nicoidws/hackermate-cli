@@ -1,5 +1,20 @@
 #!/usr/bin/env node
 
+console.clear();
+
+console.log("\x1b[32m");
+console.log(`
+ _   _            _                         _       _       
+| | | | __ _  ___| | _____ _ __ ___   __ _| |_ ___| |      
+| |_| |/ _\` |/ __| |/ / _ \\ '_ \` _ \\ / _\` | __/ _ \\ |      
+|  _  | (_| | (__|   <  __/ | | | | | (_| | ||  __/ |      
+|_| |_|\\__,_|\\___|_|\\_\\___|_| |_| |_|\\__,_|\\__\\___|_|      
+
+     hackermate-cli by an0mia v1.0.0 (Bubu animate!!)
+`);
+
+console.log("\x1b[0m");
+
 const { Chess } = require("chess.js");
 const { spawn } = require("child_process");
 const readline = require("readline");
