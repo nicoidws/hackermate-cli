@@ -2,7 +2,7 @@
   "name": "hackermate-cli",
   "version": "1.0.0",
   "bin": {
-    "hmate": "./index.js"
+    "hackermate-cli": "./index.js"
   },
   "dependencies": {
     "chess.js": "^1.0.0"
